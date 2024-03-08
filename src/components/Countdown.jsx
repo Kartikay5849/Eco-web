@@ -12,6 +12,7 @@ const Countdown = () => {
   const [email,setEmail]=useState("");
   const [event,setEvent]=useState();
   const [user, setUser] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(null);
   const eventCollectionRef=collection(db,"CLEANUP_EVENTS")
   var ids;
   // const docref=doc(db,"CLEANUP_EVENTS",ids);
@@ -41,20 +42,52 @@ const Countdown = () => {
     getEventList();
   }, []);
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        setName(currentUser.displayName)
-        console.log("currentUser",currentUser.displayName);
-        console.log("currentUser",currentUser.displayName);
-        setUser(currentUser.displayName);
-        setEmail(currentUser.email);
-      } else {
-        setUser(null);
+    const fetchData = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          console.log("currenuid",currentUser.uid)
+          // Fetch data of the document where document ID is equal to the UID of the logged-in user
+          const userDocRef = doc(db, "USERS", currentUser.uid);
+          const userDocSnapshot = await getDoc(userDocRef);
+          if (userDocSnapshot.exists()) {
+            setLoggedInUser(userDocSnapshot.data());
+            console.log("loggedInUser",loggedInUser)
+          } else {
+            console.log("User document not found!");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user document:", error);
       }
-    });
+    };
 
+    const unsubscribe = auth.onAuthStateChanged(fetchData);
     return () => unsubscribe();
   }, []);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const currentUser = auth.currentUser;
+  //       if (currentUser) {
+  //         // Fetch data of the document where document ID is equal to the UID of the logged-in user
+  //         const userDocRef = doc(db, "USERS", currentUser.uid);
+  //         const userDocSnapshot = await getDoc(userDocRef);
+  //         if (userDocSnapshot.exists()) {
+  //           setLoggedInUser(userDocSnapshot.data());
+  //           console.log("loggedInUser",loggedInUser)
+  //         } else {
+  //           console.log("User document not found!");
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user document:", error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
 
   const [countDownTime, setCountDownTIme] = useState({
     days: "00",
@@ -116,37 +149,32 @@ const Countdown = () => {
     }, 1000);
   }, []);
 
-  async function handleParticipateClick(){
-    if(user){
-    // e.preventDefault();
-    if (eventIds){
-    
-    const examcollref = doc(db,"CLEANUP_EVENTS", eventIds[0])
-    console.log("After",eventIds)
-    const docSnapshot = await getDoc(examcollref);
-    const existingRegisteredUsers = docSnapshot.data().registeredUsers;
-    
-    // Check if registeredUsers is an array, if not, initialize it as an empty array
-    const updatedRegisteredUsers = Array.isArray(existingRegisteredUsers)
-      ? [...existingRegisteredUsers, { name: name, email: email }]
-      : [{ name: name, email: email }];
-    
-    // Update the document with the modified registeredUsers array
-    updateDoc(examcollref, {
-      registeredUsers: updatedRegisteredUsers
-    }).then(response => {
-      alert("updated")
-    }).catch(error =>{
-      console.log(error.message)
-    })
+  async function handleParticipateClick() {
+    if (loggedInUser) {
+      if (eventIds) {
+        const examcollref = doc(db, "CLEANUP_EVENTS", eventIds[0]);
+        const docSnapshot = await getDoc(examcollref);
+        const existingRegisteredUsers = docSnapshot.data().registeredUsers;
+  
+        // Check if registeredUsers is an array, if not, initialize it as an empty array
+        const updatedRegisteredUsers = Array.isArray(existingRegisteredUsers)
+          ? [...existingRegisteredUsers, loggedInUser]
+          : [loggedInUser];
+  
+        // Update the document with the modified registeredUsers array
+        updateDoc(examcollref, {
+          registeredUsers: updatedRegisteredUsers
+        }).then(response => {
+          alert("updated");
+        }).catch(error => {
+          console.log(error.message);
+        });
+      }
+    } else {
+      navigate("/register");
+    }
   }
-  }
-
-  else{
-    navigate("/register")
-  }
-}
-
+  
   useEffect(() => {
     startCountDown();
   }, [startCountDown]);
