@@ -1,6 +1,6 @@
 import React from 'react'
 import Header from '../components/Header'
-// import Countdown from '../components/Countdown'
+import Countdown from '../components/Countdown'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
 
@@ -22,7 +22,7 @@ const Home = () => {
                     </div>
                 </div>
                 <div className='mt-12'>
-                    {/* <Countdown/> */}
+                    <Countdown/>
                     <div className="flex gap- mt-8 mx-auto text-xl w-full justify-evenly ">
                         <Link to="/register">
                         <button className="bg-[#9ba2a7] px-4 py-2 rounded-md hover:bg-[#7c7c81] hover:text-white delay-125 duration-500">
