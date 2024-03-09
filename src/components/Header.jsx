@@ -30,7 +30,7 @@ const Header = () => {
 
   return (
     <div>
-      <div className='flex'>
+      <div className='flex md:ml-20 '>
         <ul className='mx-auto rounded-xl mt-8 bg-[#164863] bg-opacity-60 flex text-xl md:text-2xl px-1 sm:px-12 md:px-40 py-7 gap-16 justify-center'>
           <Link to='/aboutus'>
             <li className='hover:cursor-pointer hover:text-[#ffffff] delay-125 duration-500'>About Us</li>

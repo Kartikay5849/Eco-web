@@ -35,8 +35,7 @@ const Countdown = () => {
         ids=filteredData.map((item)=>item.id)
         console.log(ids)
         setEventIds(ids);
-        // const eventsList = data.docs[0].data().eventsList;
-        // console.log(eventsList)
+0        // console.log(eventsList)
         setEventData(filteredData)
         console.log("event data",eventData)
         console.log("event ids",eventIds)
