@@ -21,13 +21,14 @@ const Register = () => {
 
       // Add user details to Firestore
       const userDocRef = doc(collection(db, 'USERS'), user.uid);
-
+      const id=user.uid
       // Set document data
       await setDoc(userDocRef, {
         name,
         email,
         contact,
         ecoPoints,
+        id
       });
       console.log("Successfully registered");
       navigate("/");

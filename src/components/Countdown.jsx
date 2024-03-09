@@ -14,6 +14,12 @@ const Countdown = () => {
   const [user, setUser] = useState(null);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const eventCollectionRef=collection(db,"CLEANUP_EVENTS")
+  const [countDownTime, setCountDownTime] = useState({
+    days: "00",
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  });
   var ids;
   // const docref=doc(db,"CLEANUP_EVENTS",ids);
   const navigate=useNavigate();
@@ -47,11 +53,14 @@ const Countdown = () => {
         const currentUser = auth.currentUser;
         if (currentUser) {
           console.log("currenuid",currentUser.uid)
+          
+
           // Fetch data of the document where document ID is equal to the UID of the logged-in user
           const userDocRef = doc(db, "USERS", currentUser.uid);
           const userDocSnapshot = await getDoc(userDocRef);
           if (userDocSnapshot.exists()) {
             setLoggedInUser(userDocSnapshot.data());
+            console.log("v",userDocSnapshot.data())
             console.log("loggedInUser",loggedInUser)
           } else {
             console.log("User document not found!");
@@ -89,36 +98,31 @@ const Countdown = () => {
   //   fetchData();
   // }, []);
 
-  const [countDownTime, setCountDownTIme] = useState({
-    days: "00",
-    hours: "00",
-    minutes: "00",
-    seconds: "00",
-  });
+ 
   const getTimeDifference = (countDownTime) => {
     const currentTime = new Date().getTime();
-    const timeDiffrence = countDownTime - currentTime;
+    const timeDifference = countDownTime - currentTime;
     let days =
-      Math.floor(timeDiffrence / (24 * 60 * 60 * 1000)) >= 10
-        ? Math.floor(timeDiffrence / (24 * 60 * 60 * 1000))
-        : `0${Math.floor(timeDiffrence / (24 * 60 * 60 * 1000))}`;
+      Math.floor(timeDifference / (24 * 60 * 60 * 1000)) >= 10
+        ? Math.floor(timeDifference / (24 * 60 * 60 * 1000))
+        : `0${Math.floor(timeDifference / (24 * 60 * 60 * 1000))}`;
     const hours =
-      Math.floor((timeDiffrence % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60)) >=
+      Math.floor((timeDifference % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60)) >=
       10
-        ? Math.floor((timeDiffrence % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60))
+        ? Math.floor((timeDifference % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60))
         : `0${Math.floor(
-            (timeDiffrence % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60)
+            (timeDifference % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60)
           )}`;
     const minutes =
-      Math.floor((timeDiffrence % (60 * 60 * 1000)) / (1000 * 60)) >= 10
-        ? Math.floor((timeDiffrence % (60 * 60 * 1000)) / (1000 * 60))
-        : `0${Math.floor((timeDiffrence % (60 * 60 * 1000)) / (1000 * 60))}`;
+      Math.floor((timeDifference % (60 * 60 * 1000)) / (1000 * 60)) >= 10
+        ? Math.floor((timeDifference % (60 * 60 * 1000)) / (1000 * 60))
+        : `0${Math.floor((timeDifference % (60 * 60 * 1000)) / (1000 * 60))}`;
     const seconds =
-      Math.floor((timeDiffrence % (60 * 1000)) / 1000) >= 10
-        ? Math.floor((timeDiffrence % (60 * 1000)) / 1000)
-        : `0${Math.floor((timeDiffrence % (60 * 1000)) / 1000)}`;
-    if (timeDiffrence < 0) {
-      setCountDownTIme({
+      Math.floor((timeDifference % (60 * 1000)) / 1000) >= 10
+        ? Math.floor((timeDifference % (60 * 1000)) / 1000)
+        : `0${Math.floor((timeDifference % (60 * 1000)) / 1000)}`;
+    if (timeDifference < 0) {
+      setCountDownTime({
         days: "00",
         hours: "00",
         minutes: "00",
@@ -126,7 +130,7 @@ const Countdown = () => {
       });
       clearInterval();
     } else {
-      setCountDownTIme({
+      setCountDownTime({
         days: days,
         hours: hours,
         minutes: minutes,
@@ -134,6 +138,7 @@ const Countdown = () => {
       });
     }
   };
+  
   const startCountDown = useCallback(() => {
     const customDate = new Date();
     const countDownDate = new Date(
@@ -148,7 +153,56 @@ const Countdown = () => {
       getTimeDifference(countDownDate.getTime());
     }, 1000);
   }, []);
-
+  useEffect(() => {
+    if (eventData && eventData.length > 0) {
+      const eventDateString = eventData[0].date; // Assuming eventData is an array of objects
+      const eventTimeString = eventData[0].time;
+  
+      // Parse event date
+      const [day, month, year] = eventDateString.split('/').map(Number);
+      const eventDate = new Date(year, month - 1, day); // Month is zero-based
+  
+      // Parse event time
+      const [hours, minutes] = eventTimeString.split(':').map(Number);
+  
+      // Set event date and time
+      eventDate.setHours(hours, minutes, 0, 0);
+  
+      // Calculate the time difference between event date and current date
+      const currentTime = new Date().getTime();
+      const eventDateTime = eventDate.getTime();
+      const timeDifference = eventDateTime - currentTime;
+  
+      // Calculate remaining days, hours, minutes, and seconds
+      const remainingDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+      const remainingHours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const remainingMinutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+      const remainingSeconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+  
+      // Update the countdown state
+      setCountDownTime({ days: remainingDays, hours: remainingHours, minutes: remainingMinutes, seconds: remainingSeconds });
+  
+      // Start interval to update countdown every second
+      const countdownInterval = setInterval(() => {
+        const newTimeDifference = eventDateTime - new Date().getTime();
+        const newDays = Math.floor(newTimeDifference / (1000 * 60 * 60 * 24));
+        const newHours = Math.floor((newTimeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const newMinutes = Math.floor((newTimeDifference % (1000 * 60 * 60)) / (1000 * 60));
+        const newSeconds = Math.floor((newTimeDifference % (1000 * 60)) / 1000);
+  
+        setCountDownTime({ days: newDays, hours: newHours, minutes: newMinutes, seconds: newSeconds });
+  
+        // Clear interval when event time is reached
+        if (newTimeDifference <= 0) {
+          clearInterval(countdownInterval);
+          // Optionally handle event time reached
+        }
+      }, 1000);
+  
+      return () => clearInterval(countdownInterval); // Cleanup function for interval
+    }
+  }, [eventData]);
+  
   async function handleParticipateClick() {
     if (loggedInUser) {
       if (eventIds) {
@@ -175,9 +229,9 @@ const Countdown = () => {
     }
   }
   
-  useEffect(() => {
-    startCountDown();
-  }, [startCountDown]);
+  // useEffect(() => {
+  //   startCountDown();
+  // }, [startCountDown]);
   return (
     <div className="flex justify-center items-center  bg-[#164863]">
       <div className="mx-3 sm:p-10 p-4 rounded-md flex justify-center flex-col gap-6 shadow-[5px_5px_50px_rgba(47,46,60,1)]">
