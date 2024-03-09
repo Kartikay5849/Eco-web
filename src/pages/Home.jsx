@@ -3,23 +3,24 @@ import Header from '../components/Header'
 import Countdown from '../components/Countdown'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
-
+import backgroundImage from '../assets/home.svg';
 const Home = () => {
 
   return (
-    <div className='bg-[#164863] '>
-        <div className='h-screen'>
+    <div className="bg-fixed bg-cover bg-blue-300 bg-center" style={{ backgroundImage: `url(${backgroundImage})`, minHeight: '100vh' }}>
+      {/* <div className="absolute inset-0 bg-opacity-50 bg-black"></div> Overlay to darken the background image */}
+    
+         <div className='h-screen z-10'>
             <Header/>
             <div className='flex flex-col justify-center items-center mt-16'>
                 <div>
-                    <div className='flex  text-[#ddf2fd] flex-col'> 
-                    <p className='text-7xl break-all'>
-                        <span className='text-8xl '>
-                        Clean Future<br/></span> 
-                        For All
+                <div className='flex text-[#164863] flex-col items-center'>
+                    <p className='text-8xl font-semibold text-center break-all '>
+                        <span className="">Clean Future</span><br />
+                        <span className="">For All</span>
                     </p>
-                    
-                    </div>
+                </div>
+
                 </div>
                 <div className='mt-12'>
                     <Countdown/>

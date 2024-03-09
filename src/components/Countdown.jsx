@@ -237,8 +237,12 @@ const Countdown = () => {
       <div className="mx-3 sm:p-10 p-4 rounded-md flex justify-center flex-col gap-6 shadow-[5px_5px_50px_rgba(47,46,60,1)]">
         <div className="flex flex-col gap-2">
           <h1 className="text-center sm:text-3xl text-xl font-semibold leading-8 text-[#FBFAF8]">
-            Hurry, Limited Availability
-          </h1>
+          {eventData && eventData.length > 0 && (
+            <>
+                {eventData[0]?.name}   
+            </>
+          )}
+           </h1>
           <span className="text-sm font-semibold text-center leading-8 text-[#959AAE]">
             Be a part of Something Good, For Society and Your Own Self
           </span>
