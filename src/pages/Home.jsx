@@ -1,11 +1,65 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import Header from '../components/Header'
 import Countdown from '../components/Countdown'
+import { auth ,db} from '../config/firebase'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
 import backgroundImage from '../assets/home.svg';
-const Home = () => {
+import { doc,getDocs,getDoc , orderBy, query} from 'firebase/firestore'
 
+import { collection } from 'firebase/firestore'
+const Home = () => {
+const [loggedInUser, setLoggedInUser] = useState();
+const [leaderboardData, setLeaderboardData] = useState([]);
+
+  
+    useEffect(() => {
+      async function fetchLeaderboardData() {
+        const leaderboardRef = collection(db, 'USERS'); // Assuming your collection name is 'users'
+        const leaderboardSnapshot = await getDocs(query(leaderboardRef, orderBy('ecoPoints', 'desc'))); // Query users collection and order by 'ecoPoints' in descending order
+        const data = []; // Array to store leaderboard data
+        
+        leaderboardSnapshot.forEach((doc) => {
+          // Push document data into the array
+          data.push({
+            id: doc.id, // Assuming your uid is stored as document id
+            ...doc.data() // Other user data
+          });
+        });
+        
+        setLeaderboardData(data);
+      }
+  
+      fetchLeaderboardData();
+    }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+              console.log("currenuid",currentUser.uid)
+              
+    
+              // Fetch data of the document where document ID is equal to the UID of the logged-in user
+              const userDocRef = doc(db, "USERS", currentUser.uid);
+              const userDocSnapshot = await getDoc(userDocRef);
+              if (userDocSnapshot.exists()) {
+                setLoggedInUser(userDocSnapshot.data());
+                console.log("v",userDocSnapshot.data())
+                console.log("loggedInUser",loggedInUser)
+              } else {
+                console.log("User document not found!");
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching user document:", error);
+          }
+        };
+    
+        const unsubscribe = auth.onAuthStateChanged(fetchData);
+        return () => unsubscribe();
+      }, []);
+    
   return (
     <div className="bg-fixed bg-cover bg-blue-300 bg-center" style={{ backgroundImage: `url(${backgroundImage})`, minHeight: '100vh' }}>
       {/* <div className="absolute inset-0 bg-opacity-50 bg-black"></div> Overlay to darken the background image */}
@@ -24,18 +78,21 @@ const Home = () => {
                 </div>
                 <div className='mt-12'>
                     <Countdown/>
-                    <div className="flex gap- mt-8 mx-auto text-xl w-full justify-evenly ">
-                        <Link to="/register">
-                        <button className="bg-[#9ba2a7] px-4 py-2 rounded-md hover:bg-[#7c7c81] hover:text-white delay-125 duration-500">
-                            Register
-                        </button>
+                    { loggedInUser ?
+                    <></>
+                            :<div className="flex gap- mt-8 mx-auto text-xl w-full justify-evenly ">
+                            <Link to="/register">
+                            <button className="bg-[#9ba2a7] px-4 py-2 rounded-md hover:bg-[#7c7c81] hover:text-white delay-125 duration-500">
+                                Register
+                            </button>
+                            </Link>
+                        <Link to="/login">
+                            <button  className=" border-2 border-[#9ba2a7] px-4 py-2 rounded-md hover:border-[#a1c3db] shadow-xl text-white delay-125 duration-500">
+                                Login
+                            </button>
                         </Link>
-                    <Link to="/login">
-                        <button  className=" border-2 border-[#9ba2a7] px-4 py-2 rounded-md hover:border-[#a1c3db] shadow-xl text-white delay-125 duration-500">
-                            Login
-                        </button>
-                    </Link>
-                </div>
+                        </div>
+                    }
                 </div>
             
             </div>
@@ -43,76 +100,71 @@ const Home = () => {
 
         {/* what we fight for */}
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className='text-white text-5xl text-center mb-12 font-bold'>What we Fight For?</h1>
+        <div id='aboutus' className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <h1 className='text-[#164863] text-5xl text-center mb-12 font-bold'>What we Fight For?</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <div className="bg-gray-200 p-4 rounded-lg">
-                <h2 className="text-3xl font-bold mb-2">Plastic Reduction</h2>
-                <p className="text-xl text-justify">Our organization is dedicated to reducing the prevalence and impact of plastic pollution in marine
-                 environments. We recognize urgent need to address this global issue that threatens marine life and ecosystems.
-                  Through various initiatives, such as organizing beach clean-up events, advocating for policies to reduce single-use plastics,
-                   and promoting recycling and waste management programs, we aim to minimize plastic waste and its detrimental effects on the environment.
+                <div className="bg-gray-200 pb-8 border-2 border-blue-200 delay-125 duration-500 hover:border-[#164863] ">
+                <h2 className="text-2xl bg-[#8cc5e4] text-[#1a1a1d] text-center py-3 font-bold mb-2">Environmental Preservation</h2>
+                <p className="text-xl px-3 text-justify">Our primary mission is the protection and preservation of coastal ecosystems, 
+                achieved through community-driven initiatives, advocacy, and sustainable management practices.
                 </p>
                 </div>
-                <div className="bg-gray-200 p-4 rounded-lg">
-                <h2 className="text-3xl font-bold mb-2">Ocean Protection</h2>
-                <p className="text-xl">Defending our oceans is at the core of our mission. We are committed to addressing the myriad of threats that endanger 
-                the health and vitality of marine ecosystems. Our initiatives encompass a wide range of activities, including lobbying for the establishment 
-                of marine protected areas, supporting sustainable fishing practices, and raising awareness about the importance of ocean conservation. </p>
-                </div>
-                <div className="bg-gray-200 p-4 rounded-lg">
-                <h2 className="text-3xl font-bold mb-2">Beach Access</h2>
-                <p className="text-xl">
-                We believe that access to beaches should be equitable and inclusive for all individuals, regardless of background or ability. Our organization
-                 is dedicated to ensuring that everyone has the opportunity to enjoy and benefit from our coastal environments. We collaborate with policymakers
-                  and community stakeholders to address barriers to beach access, such as restrictive regulations or inadequate infrastructure.
+                <div className="bg-gray-200 border-2 border-blue-200 delay-125 duration-500 hover:border-[#164863] ">
+                <h2 className="text-2xl bg-[#8cc5e4] text-[#1a1a1d] text-center py-3 font-bold mb-2">Community Engagement</h2>
+                <p className="text-xl px-3 text-justify">We empower individuals to actively participate in beach cleaning events and environmental education programs,
+                 fostering a sense of responsibility and stewardship towards our natural surroundings.
                 </p>
                 </div>
-                <div className="bg-gray-200 p-4 rounded-lg">
-                <h2 className="text-3xl font-bold mb-2">Coast and Climate</h2>
-                <p className="text-xl">Our organization understands the intrinsic link between coastal regions and climate change, and we are dedicated to 
-                 addressing the interconnected challenges presented by these issues. Coastal areas are particularly vulnerable to the impacts of climate
-                 change, including rising sea levels, increased frequency of extreme weather events, and coastal erosion. </p>
+                <div className="bg-gray-200 border-2 border-blue-200 delay-125 duration-500 hover:border-[#164863] ">
+                <h2 className="text-2xl bg-[#8cc5e4] text-[#1a1a1d] text-center py-3 font-bold mb-2">Sustainable Tourism Advocacy</h2>
+                <p className="text-xl px-3 text-justify">We advocate for eco-friendly practices that minimize our environmental footprint while supporting responsible tourism, ensuring that our coastal
+                 areas remain pristine and accessible for future generations.
+                </p>
                 </div>
-                <div className="bg-gray-200 p-4 rounded-lg">
-                <h2 className="text-3xl font-bold mb-2">Clean Water</h2>
-                <p className="text-xl">Protecting the health and sustainability of our planet’s most precious resource, water, is a cornerstone of our work.
-                 We recognize that access to clean water is essential for human health, environmental well-being, and economic prosperity. Our initiatives 
-                 focus on implementing water conservation measures, preventing pollution, and advocating for policies that prioritize clean water resources.</p>
+                <div className="bg-gray-200 border-2 border-blue-200 delay-125 duration-500 hover:border-[#164863] ">
+                <h2 className="text-2xl bg-[#8cc5e4] text-[#1a1a1d] text-center py-3 font-bold mb-2">Education and Outreach</h2>
+                <p className="text-xl px-3 text-justify">Through workshops, resources, and awareness campaigns, we aim to increase environmental literacy and inspire action, equipping communities with the knowledge 
+                and tools needed to address pressing environmental challenges.
+                </p>
                 </div>
+                <div className="bg-gray-200 border-2 border-blue-200 delay-125 duration-500 hover:border-[#164863] ">
+                <h2 className="text-2xl bg-[#8cc5e4] text-[#1a1a1d] text-center py-3 font-bold mb-2">Collaborative Impact</h2>
+                <p className="text-xl px-3 text-justify">We believe in the power of partnerships and collaboration, working closely with NGOs, businesses, and local communities to amplify our efforts, leverage resources, 
+                and drive meaningful change towards a more sustainable future.
+                </p>
+                </div>
+                
             </div>
         </div>
 
         {/* Leaderboard */}
-        <div className="h-screen flex mt-48 py-12 flex-col">
-      {/* Header */}
-        <div className='text-center'>
-            <h1 className='text-5xl text-white' >LEADERBOARD</h1>
-        </div>
-      {/* Ranking */}
-        <div className="flex-grow ">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Ranking for Player 1 */}
-                <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-                    <h2 className="text-lg font-semibold mb-2">1. Kartikay</h2>
-                    <p className="text-sm">Ecopoints: 1000</p>
-                </div>
-                {/* Ranking for Player 2 */}
-                <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-                    <h2 className="text-lg font-semibold mb-2">2. Aditya </h2>
-                    <p className="text-sm">Ecopoints: 900</p>
-                </div>
-                {/* Ranking for Player 3 */}
-                <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-                    <h2 className="text-lg font-semibold mb-2">3.Avani</h2>
-                    <p className="text-sm">Ecopoints: 800</p>
-                </div>
-                {/* Ranking for Player 4 */}
-                <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-                    <h2 className="text-lg font-semibold mb-2">4. ABCD</h2>
-                    <p className="text-sm">Ecopoints: 700</p>
-                </div>
-                </div>
+        <div className="container mx-auto h-auto py-32">
+            <h1 className="text-5xl text-[#164863] font-bold mb-4 text-center">Leaderboard</h1>
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+                <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                    <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rank
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Name
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Points
+                    </th>
+                    </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {leaderboardData.map((user, index) => (
+                    <tr key={user.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{user.ecoPoints}</td>
+                    </tr>
+                    ))}
+                </tbody>
+                </table>
             </div>
         </div>
 
@@ -121,7 +173,7 @@ const Home = () => {
         <div className="h-screen flex flex-col">
             {/* Header */}
             <div className='text-center'>
-                <h1 className='text-5xl text-white'>Our Partners</h1>
+                <h1 className='text-5xl text-[#164863] font-bold'>Our Partners</h1>
             </div>
 
             
@@ -167,11 +219,9 @@ const Home = () => {
         </div>
 
    
-        
-        {/* Feedback */}
 
-        <div className="py-12 mb-48 sm:mt-8 ">
-        <h2 className="text-5xl font-bold text-center text-gray-200 mb-8">Feedback for us</h2>
+        <div id='contact' className="py-12 mb-48 sm:mt-8 ">
+        <h2 className="text-5xl font-bold text-center text-[#164863]  mb-8">Feedback for us</h2>
 
          <div className="w-full flex justify-around mx-auto  px-4">
         <div className="flex flex-col  md:flex-row">

@@ -228,6 +228,7 @@ const Countdown = () => {
     }
   }
   
+  
   // useEffect(() => {
   //   startCountDown();
   // }, [startCountDown]);
@@ -285,41 +286,40 @@ const Countdown = () => {
             
             <Button
                 onClick={() => setOpenModal(true)} 
-                className="w-full bg-[#9ba2a7] hover:bg-transparent text-xl border-2
+                className="w-full bg-blue-100 hover:bg-transparent text-xl border-2
                   border-[#9ba2a7] px-4 py-2 rounded-md hover:border-[#a1c3db] shadow-xl
-                  text-white delay-125 duration-500">Click For More Details</Button>
+                  text-black delay-125 hover:text-white duration-500">Click For More Details</Button>
             </div>
           
             <Modal
-            className=" w-1/2 h-1/2 bg-opacity-0 mx-auto my-auto  "
+            className=" w-1/2 scrollbar-hide h-1/2 bg-opacity-0 mx-auto my-auto  "
           show={openModal}
           position={modalPlacement}
           onClose={() => setOpenModal(false)}
         >
-        <Modal.Header className="p-6">{eventData && eventData.length > 0 && (
-            <div>
-              <p>Name: {eventData[0].name}</p>
+        <Modal.Header className="p-6 bg-gray-100 ">{eventData && eventData.length > 0 && (
+            <div  className=" " >
+              <p className="p-3 text-5xl text-[#164863] font-bold  " > {eventData[0].name}</p>
               {/* Display other event details here as needed */}
             </div>
          )}
       </Modal.Header>
-        <Modal.Body>
-        <div>
+        <Modal.Body className="bg-gray-100" >
+        <div className="bg-white p-5 rounded-xl" >
           {eventData && eventData.length > 0 && (
             <>
-              
-              <p className="font-bold">Description:</p>
-              <p>{eventData[0].description}</p>
-              <p className="font-bold">Location:</p>
-              <p>{eventData[0].location}</p>
-              <p className="font-bold">Type:</p>
-              <p>{eventData[0].type}</p>
+              <p className="text-xl font-bold">Description:</p>
+              <p className="text-xl" >{eventData[0].description}</p>
+              <p className="text-xl font-bold">Location:</p>
+              <p className="text-xl" > {eventData[0].location}</p>
+              <p className="text-xl font-bold">Type:</p>
+              <p className="text-xl">{eventData[0].type}</p>
             </>
           )}
         </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button className="bg-yellow-500" onClick={() => {
+        <Modal.Footer className="bg-gray-100" >
+          <Button className="bg-blue-500 px-4 py-2 " onClick={() => {
             handleParticipateClick();
 
           }}>Participate</Button>

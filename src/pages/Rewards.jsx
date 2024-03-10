@@ -2,11 +2,18 @@
   import Card from '../components/Card';
   import Header from '../components/Header';
   import backgroundImage from '../assets/home.svg';
+import { Link } from 'react-router-dom';
 
   const Reward = () => {
     return (
       <div className="bg-fixed bg-cover bg-blue-300 bg-center" style={{ backgroundImage: `url(${backgroundImage})`, minHeight: '100vh' }}>
-      <Header/>
+      {/* <Header/>
+       */}
+       <div className=' ml-4 md:ml-12 py-8'>
+        <Link to="/">
+        <span className='bg-blue-100 px-4 py-3 rounded-xl ' > -- Go Back to Home</span>
+        </Link>
+       </div>
       <main className="page-content flex justify-center mt-24 items-center  p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-screen-xl font-rubik">
           <Card

@@ -5,7 +5,14 @@ import { getDoc, doc } from 'firebase/firestore';
 
 const Header = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
-
+  const scrollToAboutUs = () => {
+    const aboutUsSection = document.getElementById('aboutus');
+    aboutUsSection.scrollIntoView({ behavior: 'smooth' });
+  }
+  const scrollToContact = () => {
+    const contact = document.getElementById('contact');
+    contact.scrollIntoView({ behavior: 'smooth' });
+  }
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,15 +39,15 @@ const Header = () => {
     <div>
       <div className='flex md:ml-20 '>
         <ul className='mx-auto rounded-xl mt-8 bg-[#164863] bg-opacity-60 flex text-xl md:text-2xl px-1 sm:px-12 md:px-40 py-7 gap-16 justify-center'>
-          <Link to='/aboutus'>
-            <li className='hover:cursor-pointer hover:text-[#ffffff] delay-125 duration-500'>About Us</li>
-          </Link>
-          <Link to='/learn'>
+          {/* <Link to='#aboutus'> */}
+            <li onClick={scrollToAboutUs} className='hover:cursor-pointer hover:text-[#ffffff] delay-125 duration-500'>About Us</li>
+          {/* </Link> */}
+          {/* <Link to='/learn'>
             <li className='hover:cursor-pointer hover:text-[#ffffff]  delay-125 duration-500'>Learn</li>
-          </Link>
-          <Link to='/contact'>
-            <li className='hover:cursor-pointer hover:text-[#ffffff]  delay-125 duration-500 '>Contact</li>
-          </Link>
+          </Link> */}
+          {/* <Link to='/contact'> */}
+            <li onClick={scrollToContact} className='hover:cursor-pointer hover:text-[#ffffff]  delay-125 duration-500 '>Contact</li>
+          {/* </Link> */}
           <Link to='/rewards'>
             <li className='hover:cursor-pointer hover:text-[#ffffff]  delay-125 duration-500'> Rewards</li>
           </Link>
